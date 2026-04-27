@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AttendanceCalendar } from "@/components/shared/AttendanceCalendar";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +21,7 @@ export default function AttendancePage() {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
   const mine = useMemo(
-    () => mockAttendanceRecords.filter((a) => a.userId === user?.id).slice(0, 35),
+    () => mockAttendanceRecords.filter((a) => a.userId === user?.id),
     [user?.id],
   );
 
@@ -80,26 +81,10 @@ export default function AttendancePage() {
         </Card>
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-base">Monthly heatmap (sample)</CardTitle>
+            <CardTitle className="text-base">Attendance calendar</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-7 gap-1 text-[10px]">
-              {mine.slice(0, 28).map((a) => (
-                <div
-                  key={a.id}
-                  title={`${a.date} ${a.status}`}
-                  className={`aspect-square rounded-sm ${
-                    a.status === "present" || a.status === "on_time"
-                      ? "bg-emerald-500/80"
-                      : a.status === "late"
-                        ? "bg-amber-500/80"
-                        : a.status === "half_day"
-                          ? "bg-sky-500/80"
-                          : "bg-rose-500/70"
-                  }`}
-                />
-              ))}
-            </div>
+            <AttendanceCalendar records={mine} />
           </CardContent>
         </Card>
         <DataTable columns={columns} data={mine} searchPlaceholder="Search attendance…" />

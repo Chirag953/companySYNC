@@ -25,7 +25,7 @@ export function ManagerDashboard() {
     { name: "In Progress", value: mockTasks.filter((t) => t.status === "in_progress").length },
     { name: "Done", value: mockTasks.filter((t) => t.status === "completed").length },
   ];
-  const COLORS = ["#94a3b8", "#3b82f6", "#22c55e"];
+  const COLORS = ["var(--chart-2)", "var(--chart-3)", "var(--chart-4)"];
 
   const today = format(new Date(), "yyyy-MM-dd");
   const todayRows = mockAttendanceRecords.filter((a) => a.date === today).slice(0, 6);
@@ -84,7 +84,7 @@ export function ManagerDashboard() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className="min-h-11 bg-emerald-600 hover:bg-emerald-600/90">
+                <Button size="sm" className="min-h-11 bg-emerald-600 text-white hover:bg-emerald-600/90 dark:bg-emerald-600 dark:hover:bg-emerald-600/90">
                   Approve
                 </Button>
                 <Button size="sm" variant="destructive" className="min-h-11">

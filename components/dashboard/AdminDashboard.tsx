@@ -51,7 +51,7 @@ export function AdminDashboard() {
     { name: "Paid", value: 24 },
     { name: "Unpaid", value: 4 },
   ];
-  const COLORS = ["#6366f1", "#22c55e", "#f97316", "#94a3b8"];
+  const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)"];
 
   return (
     <div className="space-y-8">
@@ -88,7 +88,7 @@ export function AdminDashboard() {
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="var(--primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -102,7 +102,7 @@ export function AdminDashboard() {
                 <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Line type="monotone" dataKey="present" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="present" stroke="var(--primary)" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

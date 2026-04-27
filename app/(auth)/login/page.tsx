@@ -41,7 +41,8 @@ export default function LoginPage() {
         </div>
         <p className="max-w-sm text-sm text-primary-foreground/80">
           Phase 1 uses mock data. Try admin@company.com, manager@company.com, or employee@company.com
-          with password <code className="rounded bg-black/20 px-1">password</code>.
+          with password{" "}
+          <code className="rounded bg-black/20 px-1 dark:bg-black/40">password</code>.
         </p>
       </div>
       <div className="flex flex-1 items-center justify-center p-6 md:p-12">

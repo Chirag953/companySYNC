@@ -88,7 +88,7 @@ export default function PerformancePage() {
                 <XAxis dataKey="m" />
                 <YAxis domain={[0, 100]} />
                 <Tooltip />
-                <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} dot />
+                <Line type="monotone" dataKey="score" stroke="var(--primary)" strokeWidth={2} dot />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -116,7 +116,7 @@ export default function PerformancePage() {
             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
             <YAxis domain={[0, 100]} />
             <Tooltip />
-            <Bar dataKey="score" name="Score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="score" name="Score" fill="var(--primary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

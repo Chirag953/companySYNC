@@ -108,12 +108,12 @@ export function EmployeeDashboard() {
                 <div
                   className={`h-16 w-full rounded-md ${
                     d.status === "present" || d.status === "on_time"
-                      ? "bg-emerald-500/80"
+                      ? "bg-emerald-500/80 dark:bg-emerald-600/85"
                       : d.status === "late"
-                        ? "bg-amber-500/80"
+                        ? "bg-amber-500/80 dark:bg-amber-600/85"
                         : d.status === "half_day"
-                          ? "bg-sky-500/80"
-                          : "bg-rose-500/70"
+                          ? "bg-sky-500/80 dark:bg-sky-600/85"
+                          : "bg-rose-500/70 dark:bg-rose-600/80"
                   }`}
                   title={d.status}
                 />
@@ -131,7 +131,7 @@ export function EmployeeDashboard() {
               <XAxis dataKey="week" tick={{ fontSize: 11 }} />
               <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} dot />
+              <Line type="monotone" dataKey="score" stroke="var(--primary)" strokeWidth={2} dot />
             </LineChart>
           </ResponsiveContainer>
         </div>

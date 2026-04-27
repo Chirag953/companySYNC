@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,16 +15,34 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { breadcrumbsForPath, titleForPath } from "@/lib/route-titles";
 import { NotificationBell } from "@/components/shared/NotificationBell";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 
-export function Topbar({ pathname }: { pathname: string }) {
+export function Topbar({
+  pathname,
+  onMenuClick,
+}: {
+  pathname: string;
+  /** Opens the same sidebar panel as desktop (mobile / tablet). */
+  onMenuClick?: () => void;
+}) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const crumbs = breadcrumbsForPath(pathname);
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:px-6">
+      {onMenuClick ? (
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "shrink-0 md:hidden")}
+          aria-label="Open menu"
+        >
+          <Menu className="size-5" />
+        </button>
+      ) : null}
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-lg font-semibold md:text-xl">{titleForPath(pathname)}</h1>
         <nav className="mt-0.5 flex flex-wrap items-center gap-1 text-xs text-muted-foreground md:text-sm">
@@ -42,6 +60,7 @@ export function Topbar({ pathname }: { pathname: string }) {
         </nav>
       </div>
       <NotificationBell />
+      <ThemeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger
           className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 gap-2 px-2 inline-flex items-center rounded-lg")}

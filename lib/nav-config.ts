@@ -5,12 +5,13 @@ import {
   UsersRound,
   ListTodo,
   CalendarDays,
+  CalendarRange,
   Clock,
   CalendarClock,
+  Building2,
   LineChart,
   FolderOpen,
   StickyNote,
-  Bell,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -22,31 +23,83 @@ export type NavItem = {
   roles: Role[];
 };
 
-export const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "manager", "employee"] },
-  { href: "/users", label: "Users", icon: Users, roles: ["admin"] },
-  { href: "/teams", label: "Teams", icon: UsersRound, roles: ["admin"] },
-  { href: "/tasks", label: "Tasks", icon: ListTodo, roles: ["admin", "manager", "employee"] },
-  { href: "/leave", label: "Leave", icon: CalendarDays, roles: ["admin", "employee"] },
-  { href: "/leave/requests", label: "Leave Requests", icon: CalendarDays, roles: ["manager"] },
-  { href: "/attendance", label: "Attendance", icon: Clock, roles: ["admin", "manager", "employee"] },
-  { href: "/shifts", label: "Shifts", icon: CalendarClock, roles: ["admin", "employee"] },
-  { href: "/performance", label: "Performance", icon: LineChart, roles: ["admin", "manager", "employee"] },
-  { href: "/documents", label: "Documents", icon: FolderOpen, roles: ["admin", "manager", "employee"] },
-  { href: "/notes", label: "Notes", icon: StickyNote, roles: ["admin", "manager", "employee"] },
-  { href: "/notifications", label: "Notifications", icon: Bell, roles: ["admin", "manager", "employee"] },
-  { href: "/settings", label: "Settings", icon: Settings, roles: ["admin", "manager", "employee"] },
+export type NavSection =
+  | { type: "link"; item: NavItem }
+  | { type: "group"; label: string; icon: LucideIcon; items: NavItem[] };
+
+function filterByRole(items: NavItem[], role: Role): NavItem[] {
+  return items.filter((i) => i.roles.includes(role));
+}
+
+function navItem(
+  href: string,
+  label: string,
+  icon: LucideIcon,
+  roles: Role[],
+): NavItem {
+  return { href, label, icon, roles };
+}
+
+const NAV_DASHBOARD = navItem("/dashboard", "Dashboard", LayoutDashboard, ["admin", "manager", "employee"]);
+const NAV_TASKS = navItem("/tasks", "Tasks", ListTodo, ["admin", "manager", "employee"]);
+const NAV_PERFORMANCE = navItem("/performance", "Performance", LineChart, ["admin", "manager", "employee"]);
+const NAV_DOCUMENTS = navItem("/documents", "Documents", FolderOpen, ["admin", "manager", "employee"]);
+const NAV_NOTES = navItem("/notes", "Notes", StickyNote, ["admin", "manager", "employee"]);
+const NAV_SETTINGS = navItem("/settings", "Settings", Settings, ["admin", "manager", "employee"]);
+
+const PEOPLE_TEAMS_ITEMS: NavItem[] = [
+  navItem("/users", "Users", Users, ["admin"]),
+  navItem("/teams", "Teams", UsersRound, ["admin"]),
 ];
 
-export const mobilePrimaryHrefs = [
-  "/dashboard",
-  "/tasks",
-  "/attendance",
-  "/notifications",
-  "/settings",
+const LEAVE_SCHEDULING_ITEMS: NavItem[] = [
+  navItem("/leave", "Leave", CalendarDays, ["admin", "employee"]),
+  navItem("/leave/requests", "Leave Requests", CalendarDays, ["manager"]),
+  navItem("/attendance", "Attendance", Clock, ["admin", "manager", "employee"]),
+  navItem("/shifts", "Shifts", CalendarClock, ["admin", "employee"]),
 ];
 
-export function navForRole(role: Role | null) {
+const TAIL_LINKS: NavItem[] = [NAV_PERFORMANCE, NAV_DOCUMENTS, NAV_NOTES, NAV_SETTINGS];
+
+/**
+ * Ordered nav for sidebar / mobile sheet: flat links plus collapsible groups.
+ * Notifications are not listed — use the bell → “View all” (`/notifications`).
+ */
+export function getNavSections(role: Role | null): NavSection[] {
   if (!role) return [];
-  return navItems.filter((item) => item.roles.includes(role));
+  const sections: NavSection[] = [];
+  sections.push({ type: "link", item: NAV_DASHBOARD });
+
+  const people = filterByRole(PEOPLE_TEAMS_ITEMS, role);
+  if (people.length > 1) {
+    sections.push({ type: "group", label: "People & teams", icon: Building2, items: people });
+  } else if (people.length === 1) {
+    sections.push({ type: "link", item: people[0] });
+  }
+
+  sections.push({ type: "link", item: NAV_TASKS });
+
+  const leave = filterByRole(LEAVE_SCHEDULING_ITEMS, role);
+  if (leave.length > 1) {
+    const leaveGroupLabel =
+      role === "manager" || role === "employee" ? "Leave & Attendance" : "Leave & scheduling";
+    sections.push({ type: "group", label: leaveGroupLabel, icon: CalendarRange, items: leave });
+  } else if (leave.length === 1) {
+    sections.push({ type: "link", item: leave[0] });
+  }
+
+  for (const item of filterByRole(TAIL_LINKS, role)) {
+    sections.push({ type: "link", item });
+  }
+  return sections;
+}
+
+/** Flat list in visual order (e.g. mobile bottom bar filter). */
+export function flattenNavItems(role: Role | null): NavItem[] {
+  return getNavSections(role).flatMap((s) => (s.type === "link" ? [s.item] : s.items));
+}
+
+/** @deprecated Use `getNavSections` or `flattenNavItems` */
+export function navForRole(role: Role | null): NavItem[] {
+  return flattenNavItems(role);
 }
