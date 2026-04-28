@@ -34,6 +34,26 @@ Cumulative work log. **Last session only:** [recent-changes.md](recent-changes.m
 
 | Date       | Phase   | Area        | What was done                                                                                                      | Files / notes                            |
 | ---------- | ------- | ----------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
+| 2026-04-28 | Phase 1 | Navigation  | Sidebar active menu rows now show a small emerald status dot + glass active styling; no section regrouping         | `sidebar-panel.tsx`                      |
+| 2026-04-28 | Phase 1 | Performance | `/performance/employee/[id]` detail + table links; tasks + assigned-by/on; manager scope                         | `performance/*`, `route-titles`          |
+| 2026-04-28 | Phase 1 | Notifications | Inbox filter rail: icons, counts, glass section header, a11y                                                       | `notifications/page.tsx`               |
+| 2026-04-28 | Phase 1 | Nav / access | Audit log: remove from employee nav; `RequireRole` admin+manager on page                                          | `nav-config`, `audit-log/page`           |
+| 2026-04-28 | Phase 1 | Layout      | `PageHeader` back button default on + `fallbackHref` `/dashboard`; trim duplicate props on detail pages            | `PageHeader`, several `app/**/page.tsx`  |
+| 2026-04-28 | Phase 1 | Documents   | Manager `/documents` = team employee table → `/documents/employee/[id]` by category; mock single + bulk download   | `documents/*`, `route-titles`            |
+| 2026-04-28 | Phase 1 | Performance | Manager `/performance`: table + chart scoped to managed teams; export `managerVisibleUserIds`                      | `performance/page.tsx`, `audit-log-scope` |
+| 2026-04-28 | Phase 1 | Tasks / UI  | `/tasks/new` create page (gated); list uses Link; route title/icon; form unchanged                                | `tasks/page.tsx`, `tasks/new`, `route-titles` |
+| 2026-04-28 | Phase 1 | Tasks / UI  | Create-task sheet: gradient header, wider panel for managers; form: uploads, subtasks, initial comment            | `tasks/page.tsx`, `TaskForm.tsx`         |
+| 2026-04-28 | Phase 1 | Audit log   | `/audit-log` back button; search/category/department/role/date/time filters; select-all and selected CSV export    | `audit-log/page.tsx`                     |
+| 2026-04-28 | Phase 1 | Typography / UI | Typography & icon polish: `--font-display` alias; Lucide sizes + muted tints; dialog/sheet/select/dropdown icons; logout gap | `globals.css`, Topbar, shared, menus, dialog, sheet |
+| 2026-04-28 | Phase 1 | Theming / UI | companySYNC visual system reset: dark default, HSL tokens, `font-size:80%`, theme-glass mesh, gradient button, rounded-lg glass Card | `layout`, providers, `globals.css`, `button`, `card` |
+| 2026-04-28 | Phase 1 | Theming / UI | Black-first tokens + `bg-black` base; softer glass glow; fixed full-height sidebar + shell margin for collapsed width | `globals.css`, `dashboard-shell`, `Sidebar`, `sidebar-panel`, `card` |
+| 2026-04-28 | Phase 1 | Theming / UI | Green–cyan glass refresh: stronger `theme-glass` wash; glass utilities; frosted sidebar + gradient nav; card spacing; dashboard/page gaps | `globals.css`, shell, `Sidebar*`, `card`, dashboards, tasks/notifications/leave/performance |
+| 2026-04-27 | Phase 1 | Users       | Admin `/users`: three stacked role cards (admins, managers, employees) + per-section DataTable                  | `users/page.tsx`                       |
+| 2026-04-27 | Phase 1 | Compliance  | Audit log page (mock): role-scoped feed; nav + route titles; types + `audit-log-scope`                          | `audit-log/*`, `lib/*`, nav, memory bank |
+| 2026-04-27 | Phase 1 | Theming     | Dark mode: lighter card/sidebar/chrome + borders; Card/panel-glass shadows; sidebar uses `bg-sidebar`            | `globals.css`, `card`, sidebar, shell  |
+| 2026-04-27 | Phase 1 | Theming     | `.dark` tokens aligned to socialsync-theme-handoff (oklch); primary-foreground white; sidebar/charts retuned       | `globals.css`                          |
+| 2026-04-27 | Phase 1 | Theming     | Dark primary-foreground white; `.text-gradient` light stops; Card + `panel-glass` shadow/blur (replace border blocks) | `globals.css`, `card`, dashboards, `DataTable` |
+| 2026-04-27 | Phase 1 | Navigation  | Topbar breadcrumb-only; PageHeader + `iconForPath` Lucide chip; dashboard in-page title                         | `Topbar`, `PageHeader`, `route-titles`, dashboard page |
 | 2026-04-27 | Phase 1 | Theming     | SocialSYNC handoff: emerald/cyan oklch tokens, brand vars, Syne headings, theme-glass glow, glass/utility classes | `globals.css`, `layout.tsx`              |
 | 2026-04-27 | Phase 1 | Navigation  | Mobile/tablet: same sidebar as desktop via Sheet + SidebarPanel; hamburger Topbar; removed MobileNav bottom bar   | `sidebar-panel`, shell, Topbar, nav-config |
 | 2026-04-27 | Phase 1 | Navigation  | Manager + employee leave group “Leave & Attendance”; admin “Leave & scheduling”                                     | `nav-config.ts`                        |

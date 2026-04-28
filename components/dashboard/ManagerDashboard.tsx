@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { ListTodo, Users, CalendarCheck, Clock3 } from "lucide-react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { ChartTooltip } from "@/components/shared/ChartTooltip";
 import { StatCard } from "@/components/shared/StatCard";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { mockTasks } from "@/lib/mock-data/tasks";
 import { mockLeaveRequests } from "@/lib/mock-data/leaves";
 import { mockAttendanceRecords } from "@/lib/mock-data/attendance";
@@ -11,6 +13,14 @@ import { mockTeams } from "@/lib/mock-data/teams";
 import { useAuth } from "@/lib/auth-context";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+
+/** Distinct hues per slice — avoid same green/cyan family for every segment */
+const TASK_STATUS_PIE: Record<string, { gradId: string; from: string; to: string }> = {
+  "To Do": { gradId: "managerTaskGradTodo", from: "#f59e0b", to: "#b45309" },
+  "In Progress": { gradId: "managerTaskGradProgress", from: "#3b82f6", to: "#1e40af" },
+  Done: { gradId: "managerTaskGradDone", from: "#10b981", to: "#047857" },
+};
 
 export function ManagerDashboard() {
   const { user } = useAuth();
@@ -25,39 +35,55 @@ export function ManagerDashboard() {
     { name: "In Progress", value: mockTasks.filter((t) => t.status === "in_progress").length },
     { name: "Done", value: mockTasks.filter((t) => t.status === "completed").length },
   ];
-  const COLORS = ["var(--chart-2)", "var(--chart-3)", "var(--chart-4)"];
-
   const today = format(new Date(), "yyyy-MM-dd");
   const todayRows = mockAttendanceRecords.filter((a) => a.date === today).slice(0, 6);
 
   const pending = mockLeaveRequests.filter((l) => l.status === "pending").slice(0, 4);
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-10">
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Team size" value={teamSize} icon={Users} />
         <StatCard label="Pending tasks (company)" value={pendingTasks} icon={ListTodo} />
         <StatCard label="Approved leaves (sample)" value={approvedThisMonth} icon={CalendarCheck} />
         <StatCard label="Late marks (sample set)" value={lateThisWeek} icon={Clock3} />
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="panel-glass p-5">
           <h3 className="mb-4 text-sm font-medium">Task status distribution</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90}>
-                  {pieData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                <defs>
+                  {Object.values(TASK_STATUS_PIE).map((cfg) => (
+                    <linearGradient key={cfg.gradId} id={cfg.gradId} x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={cfg.from} />
+                      <stop offset="100%" stopColor={cfg.to} />
+                    </linearGradient>
                   ))}
+                </defs>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={50}
+                  outerRadius={90}
+                  paddingAngle={2}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={2}
+                >
+                  {pieData.map((d) => {
+                    const cfg = TASK_STATUS_PIE[d.name] ?? TASK_STATUS_PIE["To Do"];
+                    return <Cell key={d.name} fill={`url(#${cfg.gradId})`} />;
+                  })}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={ChartTooltip} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="panel-glass p-5">
           <h3 className="mb-4 text-sm font-medium">Team attendance today (sample)</h3>
           <ul className="divide-y rounded-md border">
             {todayRows.map((row) => (
@@ -69,9 +95,9 @@ export function ManagerDashboard() {
           </ul>
         </div>
       </div>
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="panel-glass p-5">
         <h3 className="mb-4 text-sm font-medium">Pending leave requests</h3>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {pending.map((l) => (
             <div
               key={l.id}
@@ -83,14 +109,12 @@ export function ManagerDashboard() {
                   {l.daysCount} day(s) · {l.reason ?? "No reason"}
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" className="min-h-11 bg-emerald-600 text-white hover:bg-emerald-600/90 dark:bg-emerald-600 dark:hover:bg-emerald-600/90">
-                  Approve
-                </Button>
-                <Button size="sm" variant="destructive" className="min-h-11">
-                  Reject
-                </Button>
-              </div>
+              <Link
+                href="/leave/requests"
+                className={cn(buttonVariants({ size: "sm" }), "min-h-11 inline-flex")}
+              >
+                Review request
+              </Link>
             </div>
           ))}
         </div>

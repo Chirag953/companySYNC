@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,14 @@ export default function ForgotPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Link href="/login" className={cn(buttonVariants(), "min-h-11 w-full inline-flex justify-center")}>
+          <Link
+            href="/login"
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "min-h-11 w-full inline-flex items-center justify-center gap-2",
+            )}
+          >
+            <ArrowLeft className="size-4 shrink-0" aria-hidden />
             Back to sign in
           </Link>
         </CardContent>

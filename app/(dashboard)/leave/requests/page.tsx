@@ -47,14 +47,14 @@ export default function LeaveRequestsPage() {
   return (
     <RequireRole allow="manager">
       <PageHeader title="Leave requests" description="Approve or reject team leave." />
-      <div className="mb-6 space-y-3">
+      <div className="mb-8 space-y-5">
         <h3 className="text-sm font-semibold">Pending</h3>
         {pending.map((l) => {
           const u = getUserById(l.userId);
           return (
             <div
               key={l.id}
-              className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm md:flex-row md:items-center md:justify-between"
+              className="panel-glass flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between"
             >
               <div className="flex items-start gap-3">
                 {u ? <UserAvatar firstName={u.firstName} lastName={u.lastName} size="md" /> : null}

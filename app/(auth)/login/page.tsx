@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div className="relative hidden flex-1 flex-col justify-between bg-gradient-to-br from-primary/90 to-primary p-10 text-primary-foreground md:flex">
         <div>
           <p className="text-sm font-semibold tracking-wide">companySYNC</p>
-          <h2 className="mt-6 max-w-md text-3xl font-bold leading-tight">
+          <h2 className="mt-6 max-w-md text-2xl font-bold leading-tight text-white">
             One workspace for tasks, attendance, leave, and documents.
           </h2>
         </div>
@@ -51,7 +51,11 @@ export default function LoginPage() {
             <CardTitle className="text-2xl">Sign in</CardTitle>
             <CardDescription>Use your company email and password.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <p className="rounded-lg border border-white/10 bg-muted/40 p-3 text-xs text-muted-foreground md:hidden">
+              Demo: admin@company.com, manager@company.com, or employee@company.com with password{" "}
+              <code className="rounded bg-background px-1 text-foreground">password</code>.
+            </p>
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

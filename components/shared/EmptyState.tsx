@@ -11,7 +11,7 @@ type EmptyStateProps = {
 export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed bg-card px-6 py-16 text-center">
-      <FileQuestion className="mb-4 size-12 text-muted-foreground" aria-hidden />
+      <FileQuestion className="mb-4 size-5 text-muted-foreground" aria-hidden />
       <h3 className="text-lg font-semibold">{title}</h3>
       {description ? (
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>

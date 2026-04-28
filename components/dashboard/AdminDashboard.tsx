@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ChartTooltip } from "@/components/shared/ChartTooltip";
 import { StatCard } from "@/components/shared/StatCard";
 import { Users, UsersRound, CalendarClock, FileWarning } from "lucide-react";
 import { mockUsers } from "@/lib/mock-data/users";
@@ -51,11 +52,17 @@ export function AdminDashboard() {
     { name: "Paid", value: 24 },
     { name: "Unpaid", value: 4 },
   ];
-  const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)"];
+
+  const leavePieFillByName: Record<string, string> = {
+    Sick: "#10b981",
+    Casual: "#3b82f6",
+    Paid: "#a855f7",
+    Unpaid: "#f97316",
+  };
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-10">
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total employees" value={mockUsers.length} icon={Users} />
         <StatCard label="Active teams" value={mockTeams.length} icon={UsersRound} />
         <StatCard label="Pending leave requests" value={pendingLeaves} icon={CalendarClock} />
@@ -78,47 +85,65 @@ export function AdminDashboard() {
           Review leaves
         </Link>
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="panel-glass p-5">
           <h3 className="mb-4 text-sm font-medium">Department headcount</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={deptHeadcount}>
+                <defs>
+                  <linearGradient id="adminDeptBarGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#06b6d4" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                <Tooltip content={ChartTooltip} />
+                <Bar dataKey="count" fill="url(#adminDeptBarGrad)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="panel-glass p-5">
           <h3 className="mb-4 text-sm font-medium">Attendance trend (sample month)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={last30}>
+                <defs>
+                  <linearGradient id="adminAttendanceLineGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#06b6d4" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="present" stroke="var(--primary)" strokeWidth={2} dot={false} />
+                <Tooltip content={ChartTooltip} />
+                <Line
+                  type="monotone"
+                  dataKey="present"
+                  stroke="url(#adminAttendanceLineGrad)"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="panel-glass p-5">
         <h3 className="mb-4 text-sm font-medium">Leave type distribution</h3>
         <div className="mx-auto h-72 max-w-md">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie data={leavePie} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={3}>
-                {leavePie.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                {leavePie.map((slice) => (
+                  <Cell key={slice.name} fill={leavePieFillByName[slice.name] ?? "#64748b"} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip content={ChartTooltip} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>

@@ -46,7 +46,7 @@ export function FileUpload({
         handleFiles(e.dataTransfer.files);
       }}
     >
-      <Upload className="mb-2 size-8 text-muted-foreground" aria-hidden />
+      <Upload className="mb-2 size-5 text-muted-foreground" aria-hidden />
       <p className="text-sm font-medium">Drag and drop files here</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Accepted: {accept.replaceAll(",", ", ")} — max {maxSizeMB} MB (mock)

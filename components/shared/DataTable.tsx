@@ -35,6 +35,9 @@ type DataTableProps<TData, TValue> = {
   data: TData[];
   searchKey?: keyof TData & string;
   searchPlaceholder?: string;
+  searchAriaLabel?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
 };
 
 export function DataTable<TData, TValue>({
@@ -42,6 +45,9 @@ export function DataTable<TData, TValue>({
   data,
   searchKey,
   searchPlaceholder = "Search…",
+  searchAriaLabel,
+  emptyTitle = "No results found",
+  emptyDescription = "Try adjusting your search or filters.",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -64,6 +70,7 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         {searchKey ? (
           <Input
+            aria-label={searchAriaLabel ?? searchPlaceholder}
             placeholder={searchPlaceholder}
             value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
             onChange={(e) => table.getColumn(searchKey)?.setFilterValue(e.target.value)}
@@ -71,6 +78,7 @@ export function DataTable<TData, TValue>({
           />
         ) : (
           <Input
+            aria-label={searchAriaLabel ?? searchPlaceholder}
             placeholder={searchPlaceholder}
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
@@ -100,7 +108,7 @@ export function DataTable<TData, TValue>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border bg-card">
+      <div className="panel-glass rounded-md">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
@@ -129,7 +137,10 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  <div className="flex flex-col items-center gap-1 py-6">
+                    <p className="font-medium text-foreground">{emptyTitle}</p>
+                    <p className="text-sm text-muted-foreground">{emptyDescription}</p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -144,7 +155,7 @@ export function DataTable<TData, TValue>({
           <button
             type="button"
             className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
+              buttonVariants({ variant: "default", size: "sm" }),
               "min-h-11",
               !table.getCanPreviousPage() && "pointer-events-none opacity-50",
             )}
@@ -156,7 +167,7 @@ export function DataTable<TData, TValue>({
           <button
             type="button"
             className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
+              buttonVariants({ variant: "default", size: "sm" }),
               "min-h-11",
               !table.getCanNextPage() && "pointer-events-none opacity-50",
             )}

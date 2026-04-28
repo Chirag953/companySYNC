@@ -31,7 +31,7 @@ export function NotificationBell() {
           "relative min-h-11 min-w-11",
         )}
       >
-        <Bell className="size-5" />
+        <Bell className="size-5 text-muted-foreground" aria-hidden />
         {unread > 0 ? (
           <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
             {unread > 9 ? "9+" : unread}

@@ -70,8 +70,7 @@ function SheetContent({
               />
             }
           >
-            <XIcon
-            />
+            <XIcon className="size-4 shrink-0" aria-hidden />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>
         )}
@@ -105,7 +104,7 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
     <SheetPrimitive.Title
       data-slot="sheet-title"
       className={cn(
-        "font-heading text-base font-medium text-foreground",
+        "text-lg font-semibold tracking-tight text-foreground",
         className
       )}
       {...props}

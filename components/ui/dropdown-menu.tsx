@@ -119,7 +119,7 @@ function DropdownMenuSubTrigger({
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto" />
+      <ChevronRightIcon className="ml-auto size-4 shrink-0 text-muted-foreground" aria-hidden />
     </MenuPrimitive.SubmenuTrigger>
   )
 }
@@ -170,8 +170,7 @@ function DropdownMenuCheckboxItem({
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon
-          />
+          <CheckIcon className="size-4" aria-hidden />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
@@ -211,8 +210,7 @@ function DropdownMenuRadioItem({
         data-slot="dropdown-menu-radio-item-indicator"
       >
         <MenuPrimitive.RadioItemIndicator>
-          <CheckIcon
-          />
+          <CheckIcon className="size-4" aria-hidden />
         </MenuPrimitive.RadioItemIndicator>
       </span>
       {children}

@@ -190,3 +190,25 @@ export interface AttendanceRules {
   halfDayAfterMinutes: number;
   overtimeAfterMinutes: number;
 }
+
+export type AuditLogCategory =
+  | "auth"
+  | "leave"
+  | "attendance"
+  | "task"
+  | "user"
+  | "document"
+  | "team"
+  | "settings";
+
+/** Phase 1 mock: immutable activity rows; scope in `lib/audit-log-scope.ts`. */
+export interface AuditLogEntry {
+  id: string;
+  occurredAt: string;
+  actorUserId: string;
+  subjectUserId: string;
+  action: string;
+  title: string;
+  description: string;
+  category: AuditLogCategory;
+}

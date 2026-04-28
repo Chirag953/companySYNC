@@ -13,6 +13,7 @@ import {
   FolderOpen,
   StickyNote,
   Settings,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -59,7 +60,9 @@ const LEAVE_SCHEDULING_ITEMS: NavItem[] = [
   navItem("/shifts", "Shifts", CalendarClock, ["admin", "employee"]),
 ];
 
-const TAIL_LINKS: NavItem[] = [NAV_PERFORMANCE, NAV_DOCUMENTS, NAV_NOTES, NAV_SETTINGS];
+const NAV_AUDIT_LOG = navItem("/audit-log", "Audit log", ScrollText, ["admin", "manager"]);
+
+const TAIL_LINKS: NavItem[] = [NAV_PERFORMANCE, NAV_DOCUMENTS, NAV_NOTES, NAV_AUDIT_LOG, NAV_SETTINGS];
 
 /**
  * Ordered nav for sidebar / mobile sheet: flat links plus collapsible groups.

@@ -26,24 +26,24 @@ export default function TaskDetailPage() {
   const assignee = task ? getUserById(task.assigneeId) : undefined;
 
   if (!task) {
-    return <p className="text-sm text-muted-foreground">Task not found.</p>;
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">Task not found.</p>
+        <Link
+          href="/tasks"
+          className={cn(buttonVariants({ variant: "outline" }), "min-h-11 inline-flex items-center justify-center")}
+        >
+          Back to tasks
+        </Link>
+      </div>
+    );
   }
 
   const readOnlyAdmin = role === "admin";
 
   return (
     <>
-      <PageHeader
-        title={task.title}
-        action={
-          <Link
-            href="/tasks"
-            className={cn(buttonVariants({ variant: "outline" }), "min-h-11 inline-flex items-center justify-center")}
-          >
-            Back to tasks
-          </Link>
-        }
-      />
+      <PageHeader title={task.title} fallbackHref="/tasks" />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="space-y-3">

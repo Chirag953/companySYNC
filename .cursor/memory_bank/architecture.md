@@ -9,12 +9,12 @@ Agents read this before Glob-hunting. **Add a row** when you create a new shared
 
 | Name             | Path                             | Notes                                         |
 | ---------------- | -------------------------------- | --------------------------------------------- |
-| Root layout      | `app/layout.tsx`                 | Inter + JetBrains Mono (`next/font`), `suppressHydrationWarning` on `<html>` |
+| Root layout      | `app/layout.tsx`                 | Inter + JetBrains Mono + Syne (`next/font`); `<html>` has `dark`; body has `theme-glass` |
 | Dashboard layout | `app/(dashboard)/layout.tsx`     | Wraps `DashboardShell`                        |
 | Auth layout      | `app/(auth)/layout.tsx`          | Theme toggle slot                             |
-| Providers        | `components/providers.tsx`       | ThemeProvider + Auth + Toaster                |
+| Providers        | `components/providers.tsx`       | ThemeProvider (`attribute="class"`, default `dark`) + Auth + Toaster |
 | ThemeProvider    | `components/theme-provider.tsx`  | `next-themes` wrapper                         |
-| DashboardShell   | `components/dashboard-shell.tsx` | Desktop `Sidebar`; mobile `<md` left `Sheet` + same `SidebarPanel`; menu in `Topbar` |
+| DashboardShell   | `components/dashboard-shell.tsx` | Owns `sidebarCollapsed`; desktop fixed `Sidebar` + `md:ml-60` / `md:ml-[72px]` on main; mobile `Sheet` + `SidebarPanel`; menu in `Topbar` |
 
 
 ---
@@ -24,9 +24,9 @@ Agents read this before Glob-hunting. **Add a row** when you create a new shared
 
 | Name      | Path                              | Notes                                     |
 | --------- | --------------------------------- | ----------------------------------------- |
-| Sidebar       | `components/layout/Sidebar.tsx`       | Desktop-only aside; wraps `SidebarPanel` + collapse |
-| SidebarPanel  | `components/layout/sidebar-panel.tsx` | Shared nav (groups + links); used by `Sidebar` and mobile `Sheet` |
-| Topbar        | `components/layout/Topbar.tsx`        | `onMenuClick` opens mobile menu (`md:hidden`); bell, theme, user |
+| Sidebar       | `components/layout/Sidebar.tsx`       | Desktop-only `fixed inset-y-0 left-0 h-screen` frosted aside; props `collapsed` + `onCollapsedChange` from `DashboardShell` |
+| SidebarPanel  | `components/layout/sidebar-panel.tsx` | Shared nav; emerald→cyan gradient active rows; profile + logout in bottom glass footer (`mt-auto`) |
+| Topbar        | `components/layout/Topbar.tsx`        | Breadcrumb strip only (Home icon → `/dashboard`, chevrons; last crumb current). `onMenuClick`, bell, theme, user |
 
 
 ---
@@ -36,7 +36,7 @@ Agents read this before Glob-hunting. **Add a row** when you create a new shared
 
 | Name               | Path                                       | Notes                     |
 | ------------------ | ------------------------------------------ | ------------------------- |
-| PageHeader         | `components/shared/PageHeader.tsx`         |                           |
+| PageHeader         | `components/shared/PageHeader.tsx`         | Client; optional `icon`; default `iconForPath` from `lib/route-titles.ts`; **back** on by default (`fallbackHref` default `/dashboard`) |
 | DataTable          | `components/shared/DataTable.tsx`          | TanStack Table            |
 | StatCard           | `components/shared/StatCard.tsx`           |                           |
 | EmptyState         | `components/shared/EmptyState.tsx`         |                           |
@@ -61,7 +61,9 @@ Agents read this before Glob-hunting. **Add a row** when you create a new shared
 | ManagerDashboard  | `components/dashboard/ManagerDashboard.tsx`  |                  |
 | EmployeeDashboard | `components/dashboard/EmployeeDashboard.tsx` |                  |
 | RequireRole       | `components/role-gates.tsx`                  | Client role gate |
-
+| Audit log page    | `app/(dashboard)/audit-log/page.tsx`         | Admin & manager only; mock `mockAuditLogs`; `filterAuditLogsForCurrentUser` in `lib/audit-log-scope.ts` |
+| Employee performance detail | `app/(dashboard)/performance/employee/[id]/page.tsx` | Admin & manager; `mockTasks` by assignee, mock HR stats; `RequireRole` + `managerVisibleUserIds` |
+| Users page        | `app/(dashboard)/users/page.tsx`             | Admin: stacked role `Card`s (admins → managers → employees), each with `DataTable` |
 
 ---
 
@@ -78,7 +80,7 @@ UserForm, TaskForm, LeaveForm, ShiftForm, NoteForm — RHF + Zod patterns.
 - Charts: `var(--primary)` / `var(--chart-n)` for fills and strokes.
 - Theme: `class` on `<html>`; components use `dark:` for parity.
 - Client interactivity: `"use client"` at top of leaf components that need hooks.
-- Nav: `lib/nav-config.ts` exports `getNavSections`, `flattenNavItems`; `/notifications` only via bell. No bottom tab bar.
+- Nav: `lib/nav-config.ts` exports `getNavSections`, `flattenNavItems`; `/notifications` only via bell; `/audit-log` in tail nav (admin & manager). No bottom tab bar.
 
 ---
 
@@ -92,5 +94,5 @@ UserForm, TaskForm, LeaveForm, ShiftForm, NoteForm — RHF + Zod patterns.
 
 ## Core lib (non-UI changes = separate task)
 
-- `lib/auth-context.tsx`, `lib/nav-config.ts`, `lib/route-titles.ts`, `lib/utils.ts`
+- `lib/auth-context.tsx`, `lib/nav-config.ts`, `lib/route-titles.ts`, `lib/audit-log-scope.ts`, `lib/utils.ts`
 

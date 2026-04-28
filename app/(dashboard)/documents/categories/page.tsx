@@ -13,6 +13,7 @@ export default function DocumentCategoriesPage() {
       <PageHeader
         title="Document categories"
         description="CRUD for document types (mock)."
+        fallbackHref="/documents"
         action={
           <Button className="min-h-11" onClick={() => toast.message("Mock: add category")}>
             Add category

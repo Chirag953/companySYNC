@@ -32,6 +32,14 @@ const LEGEND: { label: string; cls: string }[] = [
   { label: "Absent", cls: "bg-rose-500/75 dark:bg-rose-600/85" },
 ];
 
+const STATUS_LABELS: Record<AttendanceStatus, string> = {
+  present: "Present",
+  on_time: "Present",
+  late: "Late",
+  half_day: "Half",
+  absent: "Absent",
+};
+
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
 interface AttendanceCalendarProps {
@@ -99,6 +107,7 @@ export function AttendanceCalendar({ records }: AttendanceCalendarProps) {
             <div
               key={key}
               title={status ? `${key} · ${status.replace("_", " ")}` : key}
+              aria-label={status ? `${format(day, "PPP")}: ${STATUS_LABELS[status]}` : format(day, "PPP")}
               className={[
                 "flex aspect-square min-h-[2rem] flex-col items-center justify-center rounded-md text-[11px] font-medium tabular-nums transition-colors sm:min-h-0",
                 !inMonth ? "opacity-30" : "",
@@ -106,7 +115,8 @@ export function AttendanceCalendar({ records }: AttendanceCalendarProps) {
                 today ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : "",
               ].join(" ")}
             >
-              {format(day, "d")}
+              <span>{format(day, "d")}</span>
+              {status ? <span className="text-[8px] leading-none opacity-90">{STATUS_LABELS[status]}</span> : null}
             </div>
           );
         })}

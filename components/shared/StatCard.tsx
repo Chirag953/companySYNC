@@ -12,13 +12,13 @@ type StatCardProps = {
 
 export function StatCard({ label, value, icon: Icon, trend, className }: StatCardProps) {
   return (
-    <Card className={cn("shadow-sm", className)}>
+    <Card className={cn(className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
         <Icon className="size-4 text-muted-foreground" aria-hidden />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold tracking-tight">{value}</div>
+        <div className="text-2xl font-bold tracking-tight text-gradient tabular-nums">{value}</div>
         {trend ? (
           <p className="text-xs text-muted-foreground">
             <span

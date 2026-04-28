@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { LoadingState } from "@/components/shared/LoadingState";
 import type { Role } from "@/lib/types";
 
 export function RequireRole({
@@ -14,19 +15,20 @@ export function RequireRole({
 }) {
   const { role } = useAuth();
   const router = useRouter();
-  const allowed = Array.isArray(allow) ? allow : [allow];
+  const allowed = useMemo(() => (Array.isArray(allow) ? allow : [allow]), [allow]);
 
   useEffect(() => {
     if (role && !allowed.includes(role)) {
       router.replace("/dashboard");
     }
-  }, [role, router, allow]);
+  }, [role, router, allowed]);
 
   if (!role || !allowed.includes(role)) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
-        Checking access…
-      </div>
+      <LoadingState
+        message="Checking access…"
+        description="We are verifying whether this page is available for your role."
+      />
     );
   }
 

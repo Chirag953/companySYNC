@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingState } from "@/components/shared/LoadingState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,10 +13,13 @@ import { DataTable } from "@/components/shared/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { LeaveForm, type LeaveFormValues } from "@/components/forms/LeaveForm";
 import { mockLeaveBalances, mockLeaveRequests, mockLeaveTypes, mockHolidays } from "@/lib/mock-data/leaves";
-import type { LeaveStatus } from "@/lib/types";
+import { mockDepartments } from "@/lib/mock-data/departments";
+import { getUserById } from "@/lib/mock-data/users";
+import type { LeaveRequest, LeaveStatus } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { toast } from "sonner";
+import { segmentedTabsListClass, segmentedTabsTriggerClass } from "@/lib/segmented-tab-styles";
 
 export default function LeavePage() {
   const { user, role } = useAuth();
@@ -30,8 +33,28 @@ export default function LeavePage() {
 
   const myRequests = mockLeaveRequests.filter((l) => l.userId === user?.id);
 
-  const columns = useMemo<ColumnDef<(typeof myRequests)[number]>[]>(
+  const departmentNameForUser = (userId: string) => {
+    const u = getUserById(userId);
+    if (!u?.departmentId) return "—";
+    return mockDepartments.find((d) => d.id === u.departmentId)?.name ?? "—";
+  };
+
+  const columns = useMemo<ColumnDef<LeaveRequest>[]>(
     () => [
+      {
+        id: "employeeName",
+        accessorFn: (row) => {
+          const u = getUserById(row.userId);
+          return u ? `${u.firstName} ${u.lastName}` : row.userId;
+        },
+        header: "Employee",
+        cell: ({ getValue }) => <span className="font-medium">{String(getValue())}</span>,
+      },
+      {
+        id: "department",
+        accessorFn: (row) => departmentNameForUser(row.userId),
+        header: "Department",
+      },
       { accessorKey: "startDate", header: "From" },
       { accessorKey: "endDate", header: "To" },
       { accessorKey: "daysCount", header: "Days" },
@@ -47,9 +70,10 @@ export default function LeavePage() {
 
   if (role === "manager") {
     return (
-      <p className="text-sm text-muted-foreground">
-        Redirecting to <Link href="/leave/requests">leave requests</Link>…
-      </p>
+      <LoadingState
+        message="Taking you to leave requests…"
+        description="Managers review leave from the dedicated requests workspace."
+      />
     );
   }
 
@@ -90,7 +114,7 @@ export default function LeavePage() {
                   <p className="text-xs text-muted-foreground">days remaining (mock)</p>
                   <div className="mt-2 h-2 rounded-full bg-muted">
                     <div
-                      className="h-2 rounded-full bg-primary"
+                      className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500"
                       style={{ width: `${Math.min(100, (remaining / lt.daysAllowed) * 100)}%` }}
                     />
                   </div>
@@ -99,7 +123,11 @@ export default function LeavePage() {
             );
           })}
         </div>
-        <DataTable columns={columns} data={myRequests} searchPlaceholder="Search leave history…" />
+        <DataTable
+          columns={columns}
+          data={myRequests}
+          searchPlaceholder="Search by name, department, dates…"
+        />
       </>
     );
   }
@@ -108,20 +136,20 @@ export default function LeavePage() {
     <>
       <PageHeader title="Leave administration" description="Policies, holidays, and all requests." />
       <Tabs defaultValue="policies">
-        <TabsList>
-          <TabsTrigger value="policies" className="min-h-11">
+        <TabsList className={segmentedTabsListClass}>
+          <TabsTrigger value="policies" className={segmentedTabsTriggerClass}>
             Policies
           </TabsTrigger>
-          <TabsTrigger value="holidays" className="min-h-11">
+          <TabsTrigger value="holidays" className={segmentedTabsTriggerClass}>
             Holiday calendar
           </TabsTrigger>
-          <TabsTrigger value="requests" className="min-h-11">
+          <TabsTrigger value="requests" className={segmentedTabsTriggerClass}>
             All requests
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="policies" className="mt-4 space-y-3">
+        <TabsContent value="policies" className="mt-6 space-y-4">
           {mockLeaveTypes.map((lt) => (
-            <Card key={lt.id}>
+            <Card key={lt.id} className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <div>
                   <CardTitle className="text-base">{lt.name}</CardTitle>
@@ -139,22 +167,25 @@ export default function LeavePage() {
             Add leave type
           </Button>
         </TabsContent>
-        <TabsContent value="holidays" className="mt-4 space-y-2">
+        <TabsContent value="holidays" className="mt-6 space-y-3">
           {mockHolidays.map((h) => (
-            <div key={h.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
-              <span>{h.name}</span>
-              <span className="text-muted-foreground">{h.date}</span>
+            <div
+              key={h.id}
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-card/40 px-4 py-3 text-sm shadow-sm backdrop-blur-xl"
+            >
+              <span className="font-medium">{h.name}</span>
+              <span className="text-muted-foreground tabular-nums">{h.date}</span>
             </div>
           ))}
           <Button className="min-h-11" variant="secondary" onClick={() => toast.message("Mock add holiday")}>
             Add holiday
           </Button>
         </TabsContent>
-        <TabsContent value="requests" className="mt-4">
+        <TabsContent value="requests" className="mt-6">
           <DataTable
             columns={columns}
             data={mockLeaveRequests}
-            searchPlaceholder="Search requests…"
+            searchPlaceholder="Search by employee, department, dates, status…"
           />
         </TabsContent>
       </Tabs>

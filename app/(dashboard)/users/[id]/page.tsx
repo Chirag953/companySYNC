@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { RequireRole } from "@/components/role-gates";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,23 @@ import { mockTasks } from "@/lib/mock-data/tasks";
 import { mockDocuments, mockDocumentCategories } from "@/lib/mock-data/documents";
 import type { AttendanceRecord, LeaveRequest, Task } from "@/lib/types";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { segmentedTabsListClass, segmentedTabsTriggerClass } from "@/lib/segmented-tab-styles";
+
+function ProfileEmptyState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-8 text-center">
+      <p className="font-medium text-foreground">{title}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+    </div>
+  );
+}
 
 export default function UserDetailPage() {
   const params = useParams<{ id: string }>();
@@ -57,7 +75,17 @@ export default function UserDetailPage() {
   );
 
   if (!user) {
-    return <p className="text-sm text-muted-foreground">User not found.</p>;
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">User not found.</p>
+        <Link
+          href="/users"
+          className={cn(buttonVariants({ variant: "outline" }), "min-h-11 inline-flex items-center justify-center")}
+        >
+          Back to users
+        </Link>
+      </div>
+    );
   }
 
   const dept = mockDepartments.find((d) => d.id === user.departmentId)?.name ?? "—";
@@ -71,6 +99,7 @@ export default function UserDetailPage() {
       <PageHeader
         title={`${user.firstName} ${user.lastName}`}
         description="Employee profile (mock)."
+        fallbackHref="/users"
         action={
           <Button variant="outline" className="min-h-11" onClick={() => setEditing((e) => !e)}>
             {editing ? "Cancel" : "Edit"}
@@ -130,34 +159,77 @@ export default function UserDetailPage() {
       </Card>
 
       <Tabs defaultValue="overview">
-        <TabsList className="flex flex-wrap">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="attendance">Attendance</TabsTrigger>
-          <TabsTrigger value="leave">Leave</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+        <TabsList className={segmentedTabsListClass}>
+          <TabsTrigger value="overview" className={segmentedTabsTriggerClass}>
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="documents" className={segmentedTabsTriggerClass}>
+            Documents
+          </TabsTrigger>
+          <TabsTrigger value="attendance" className={segmentedTabsTriggerClass}>
+            Attendance
+          </TabsTrigger>
+          <TabsTrigger value="leave" className={segmentedTabsTriggerClass}>
+            Leave
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className={segmentedTabsTriggerClass}>
+            Tasks
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="overview" className="mt-4 space-y-2 text-sm">
-          <p>Address: {user.address ?? "Not on file"}</p>
-          <p>Status: {user.isActive ? "Active" : "Inactive"}</p>
+        <TabsContent value="overview" className="mt-6 space-y-3 text-sm">
+          {user.address || user.isActive !== undefined ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-card/40 p-4 shadow-sm backdrop-blur-xl">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Address</p>
+                <p className="mt-2 font-medium">{user.address ?? "Not on file"}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-card/40 p-4 shadow-sm backdrop-blur-xl">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</p>
+                <p className="mt-2 font-medium">{user.isActive ? "Active" : "Inactive"}</p>
+              </div>
+            </div>
+          ) : (
+            <ProfileEmptyState
+              title="No overview details"
+              description="This profile does not have address or status information yet."
+            />
+          )}
         </TabsContent>
-        <TabsContent value="documents" className="mt-4">
-          <ul className="list-inside list-disc text-sm">
-            {docs.map((d) => (
-              <li key={d.id}>
-                {d.fileName} —{" "}
-                {mockDocumentCategories.find((c) => c.id === d.categoryId)?.name ?? d.categoryId}
-              </li>
-            ))}
-          </ul>
+        <TabsContent value="documents" className="mt-6 space-y-4">
+          {docs.length ? (
+            <ul className="space-y-2 text-sm">
+              {docs.map((d) => (
+                <li
+                  key={d.id}
+                  className="rounded-xl border border-white/10 bg-card/40 px-4 py-3 shadow-sm backdrop-blur-xl"
+                >
+                  <p className="font-medium">{d.fileName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {mockDocumentCategories.find((c) => c.id === d.categoryId)?.name ?? d.categoryId}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ProfileEmptyState
+              title="No documents uploaded"
+              description="Upload a document to start building this employee's file."
+            />
+          )}
           <Button className="mt-4 min-h-11" variant="secondary" onClick={() => toast.message("Mock upload")}>
             Upload document
           </Button>
         </TabsContent>
-        <TabsContent value="attendance" className="mt-4">
-          <DataTable columns={attendanceCols} data={attendance} />
+        <TabsContent value="attendance" className="mt-6">
+          <DataTable
+            columns={attendanceCols}
+            data={attendance}
+            searchPlaceholder="Search attendance records…"
+            emptyTitle="No attendance records"
+            emptyDescription="This employee does not have attendance entries in the mock data yet."
+          />
         </TabsContent>
-        <TabsContent value="leave" className="mt-4 space-y-4">
+        <TabsContent value="leave" className="mt-6 space-y-4">
           <div className="grid gap-2 sm:grid-cols-2">
             {mockLeaveTypes.map((lt) => (
               <Card key={lt.id}>
@@ -170,10 +242,22 @@ export default function UserDetailPage() {
               </Card>
             ))}
           </div>
-          <DataTable columns={leaveCols} data={leaves} />
+          <DataTable
+            columns={leaveCols}
+            data={leaves}
+            searchPlaceholder="Search leave records…"
+            emptyTitle="No leave requests"
+            emptyDescription="This employee has not submitted leave requests in the mock data."
+          />
         </TabsContent>
-        <TabsContent value="tasks" className="mt-4">
-          <DataTable columns={taskCols} data={tasks} />
+        <TabsContent value="tasks" className="mt-6">
+          <DataTable
+            columns={taskCols}
+            data={tasks}
+            searchPlaceholder="Search assigned tasks…"
+            emptyTitle="No assigned tasks"
+            emptyDescription="There are no tasks assigned to this employee in the mock data."
+          />
         </TabsContent>
       </Tabs>
     </RequireRole>
