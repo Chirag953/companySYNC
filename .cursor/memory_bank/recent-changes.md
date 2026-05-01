@@ -4,10 +4,12 @@
 
 ---
 
-## Last session — 2026-04-28 (sidebar active state)
+## Last session — 2026-04-30 (build: ChartTooltip types)
 
-**Sidebar active state:** Added a small emerald dot marker to active nav rows in `SidebarPanel`, including grouped items and collapsed-sidebar states. Active rows now use a translucent green/cyan glass style with border, blur, and soft glow.
+**What changed:** `npm run build` failed on `ChartTooltip` vs Recharts `Tooltip` `content` prop; fixed by typing props as `TooltipContentProps` + optional `className`, and formatting `value` with `formatTooltipValue`. Build passes.
 
-No sidebar section/grouping changes were made.
+**Files touched:** `components/shared/ChartTooltip.tsx`, memory bank
 
-Files: `components/layout/sidebar-panel.tsx`
+**New components added:** none
+
+**Patterns introduced:** none

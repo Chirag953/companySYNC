@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/auth-context";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DashboardStickyBoard } from "@/components/dashboard/DashboardStickyBoard";
 
 /** Distinct hues per slice — avoid same green/cyan family for every segment */
 const TASK_STATUS_PIE: Record<string, { gradId: string; from: string; to: string }> = {
@@ -47,6 +48,9 @@ export function ManagerDashboard() {
         <StatCard label="Pending tasks (company)" value={pendingTasks} icon={ListTodo} />
         <StatCard label="Approved leaves (sample)" value={approvedThisMonth} icon={CalendarCheck} />
         <StatCard label="Late marks (sample set)" value={lateThisWeek} icon={Clock3} />
+      </div>
+      <div className="panel-glass min-w-0 rounded-xl p-4 sm:p-6">
+        <DashboardStickyBoard />
       </div>
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="panel-glass p-5">

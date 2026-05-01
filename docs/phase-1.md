@@ -78,7 +78,7 @@
 - ✅ **P-07:** Attendance — `/attendance`
 - ✅ **P-08:** Shifts — `/shifts` (admin write; employee read)
 - ✅ **P-09:** Performance — `/performance`
-- ✅ **P-10:** Documents — `/documents`, `/documents/categories` (categories admin)
+- ✅ **P-10:** Documents — `/documents` (admin + employee), `/documents/categories` (admin); managers have no Documents nav or access
 - ✅ **P-11:** Notes — `/notes`
 - ✅ **P-12:** Notifications — `/notifications` + bell in `Topbar`
 - ✅ **P-13:** Settings — `/settings`

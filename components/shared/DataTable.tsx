@@ -38,6 +38,8 @@ type DataTableProps<TData, TValue> = {
   searchAriaLabel?: string;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Rows per page (default 10). */
+  pageSize?: number;
 };
 
 export function DataTable<TData, TValue>({
@@ -48,6 +50,7 @@ export function DataTable<TData, TValue>({
   searchAriaLabel,
   emptyTitle = "No results found",
   emptyDescription = "Try adjusting your search or filters.",
+  pageSize = 10,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -63,6 +66,9 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     globalFilterFn: "includesString",
+    initialState: {
+      pagination: { pageSize },
+    },
   });
 
   return (

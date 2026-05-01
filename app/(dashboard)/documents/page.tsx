@@ -6,15 +6,13 @@ import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable } from "@/components/shared/DataTable";
-import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { managerVisibleUserIds } from "@/lib/audit-log-scope";
+import { RequireRole } from "@/components/role-gates";
 import { mockDocuments, mockDocumentCategories } from "@/lib/mock-data/documents";
 import { getUserById, mockUsers } from "@/lib/mock-data/users";
 import { mockDepartments } from "@/lib/mock-data/departments";
 import { useAuth } from "@/lib/auth-context";
-import type { Document } from "@/lib/types";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -34,15 +32,17 @@ export default function DocumentsPage() {
   const [employeeSearch, setEmployeeSearch] = useState("");
 
   const scoped = useMemo(() => {
-    if (role === "admin") return mockDocuments;
+    if (role !== "employee") return [];
     return mockDocuments.filter((d) => d.ownerId === user?.id);
   }, [role, user?.id]);
 
-  const managerTeamRows = useMemo<TeamMemberRow[]>(() => {
-    if (role !== "manager" || !user) return [];
-    const allowed = managerVisibleUserIds(user.id);
-    return mockUsers
-      .filter((u) => u.role === "employee" && allowed.has(u.id))
+  /** Admin: all employees company-wide. Managers do not have access to team documents (Phase 1). */
+  const teamMemberRows = useMemo<TeamMemberRow[]>(() => {
+    if (!user || role !== "admin") return [];
+
+    const employees = mockUsers.filter((u) => u.role === "employee");
+
+    return employees
       .map((u) => {
         const docCount = mockDocuments.filter((d) => d.ownerId === u.id).length;
         const department =
@@ -57,55 +57,7 @@ export default function DocumentsPage() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [role, user]);
 
-  const columns = useMemo<ColumnDef<Document>[]>(
-    () => [
-      {
-        accessorKey: "ownerId",
-        header: "Employee",
-        cell: ({ getValue }) => {
-          const u = getUserById(getValue() as string);
-          return u ? `${u.firstName} ${u.lastName}` : (getValue() as string);
-        },
-      },
-      {
-        accessorKey: "categoryId",
-        header: "Category",
-        cell: ({ getValue }) =>
-          mockDocumentCategories.find((c) => c.id === (getValue() as string))?.name ?? "—",
-      },
-      { accessorKey: "fileName", header: "File" },
-      { accessorKey: "uploadDate", header: "Uploaded" },
-      { accessorKey: "expiryDate", header: "Expiry" },
-      {
-        accessorKey: "expiryStatus",
-        header: "Status",
-        cell: ({ getValue }) => {
-          const v = getValue() as Document["expiryStatus"];
-          const variant = v === "expired" ? "destructive" : v === "expiring_soon" ? "secondary" : "outline";
-          return <Badge variant={variant}>{v.replace("_", " ")}</Badge>;
-        },
-      },
-      {
-        id: "actions",
-        header: "",
-        cell: () => (
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="min-h-9" onClick={() => toast.message("Mock download")}>
-              Download
-            </Button>
-            {role === "admin" ? (
-              <Button size="sm" variant="destructive" className="min-h-9" onClick={() => toast.message("Mock delete")}>
-                Delete
-              </Button>
-            ) : null}
-          </div>
-        ),
-      },
-    ],
-    [role],
-  );
-
-  const managerColumns = useMemo<ColumnDef<TeamMemberRow>[]>(
+  const adminEmployeeColumns = useMemo<ColumnDef<TeamMemberRow>[]>(
     () => [
       {
         accessorKey: "name",
@@ -155,23 +107,25 @@ export default function DocumentsPage() {
   const employeeOptions = useMemo(() => {
     const query = employeeSearch.trim().toLowerCase();
 
-    return mockUsers.filter((u) => {
-      const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
-      const departmentName = mockDepartments.find((department) => department.id === u.departmentId)?.name ?? "";
-      return (
-        !query ||
-        fullName.includes(query) ||
-        u.email.toLowerCase().includes(query) ||
-        (u.designation ?? "").toLowerCase().includes(query) ||
-        departmentName.toLowerCase().includes(query)
-      );
-    });
+    return mockUsers
+      .filter((u) => u.role === "employee")
+      .filter((u) => {
+        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
+        const departmentName = mockDepartments.find((department) => department.id === u.departmentId)?.name ?? "";
+        return (
+          !query ||
+          fullName.includes(query) ||
+          u.email.toLowerCase().includes(query) ||
+          (u.designation ?? "").toLowerCase().includes(query) ||
+          departmentName.toLowerCase().includes(query)
+        );
+      });
   }, [employeeSearch]);
 
   function openEmployeeDocuments(userId: string) {
     setEmployeeDialogOpen(false);
     setEmployeeSearch("");
-    router.push(`/users/${userId}`);
+    router.push(`/documents/employee/${userId}`);
   }
 
   if (role === "employee") {
@@ -204,114 +158,101 @@ export default function DocumentsPage() {
     );
   }
 
-  if (role === "manager") {
+  if (role === "admin") {
+    const description =
+      "All employees — open someone’s folder to view, edit, or delete documents by category (mock).";
+
+    const emptyMessage = "No employees found in this mock dataset.";
+
+    const searchPlaceholder = "Search employees…";
+
     return (
       <>
         <PageHeader
-          title="Documents"
-          description="Team members you manage — select someone to view their files by category (PAN, Aadhaar, offer letter, etc.)."
-          action={
-            <Link
-              href="/documents/categories"
-              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 inline-flex items-center justify-center")}
-            >
-              Categories
-            </Link>
-          }
-        />
-        <div className="mt-4 space-y-4">
-          {managerTeamRows.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-              No team members found for your managed teams in this mock dataset.
-            </p>
-          ) : (
-            <DataTable
-              columns={managerColumns}
-              data={managerTeamRows}
-              searchPlaceholder="Search team members…"
-            />
-          )}
-        </div>
-      </>
+            title="Documents"
+            description={description}
+            action={
+              <div className="flex flex-wrap items-center gap-2">
+                <Dialog open={employeeDialogOpen} onOpenChange={setEmployeeDialogOpen}>
+                  <DialogTrigger className={cn(buttonVariants(), "min-h-11")}>
+                    Add Employee documents
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Select employee</DialogTitle>
+                      <DialogDescription>
+                        Choose an employee to open their documents. You can upload or manage files from there (mock).
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Input
+                      aria-label="Search employees for document upload"
+                      placeholder="Search by name, email, designation, or department..."
+                      value={employeeSearch}
+                      onChange={(event) => setEmployeeSearch(event.target.value)}
+                      className="min-h-11"
+                    />
+                    <div className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-white/10 bg-card/40 p-2 shadow-sm backdrop-blur-xl">
+                      {employeeOptions.length ? (
+                        employeeOptions.map((employee) => {
+                          const departmentName =
+                            mockDepartments.find((department) => department.id === employee.departmentId)?.name ??
+                            "No department";
+
+                          return (
+                            <button
+                              key={employee.id}
+                              type="button"
+                              className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                              onClick={() => openEmployeeDocuments(employee.id)}
+                            >
+                              <UserAvatar firstName={employee.firstName} lastName={employee.lastName} />
+                              <span className="min-w-0">
+                                <span className="block font-medium text-foreground">
+                                  {employee.firstName} {employee.lastName}
+                                </span>
+                                <span className="block truncate text-xs text-muted-foreground">
+                                  {departmentName} · {employee.designation ?? "No designation"} · {employee.email}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-8 text-center">
+                          <p className="font-medium text-foreground">No employees found</p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Try searching by a different name, email, role, or department.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <Link
+                  href="/documents/categories"
+                  className={cn(buttonVariants({ variant: "outline" }), "min-h-11 inline-flex items-center justify-center")}
+                >
+                  Categories
+                </Link>
+              </div>
+            }
+          />
+          <div className="mt-4 space-y-4">
+            {teamMemberRows.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+                {emptyMessage}
+              </p>
+            ) : (
+              <DataTable columns={adminEmployeeColumns} data={teamMemberRows} searchPlaceholder={searchPlaceholder} />
+            )}
+          </div>
+        </>
     );
   }
 
   return (
-    <>
-      <PageHeader
-        title="Documents"
-        description="All employee documents."
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            {role === "admin" ? (
-              <Dialog open={employeeDialogOpen} onOpenChange={setEmployeeDialogOpen}>
-                <DialogTrigger className={cn(buttonVariants(), "min-h-11")}>
-                  Add Employee documents
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Select employee</DialogTitle>
-                    <DialogDescription>
-                      Choose the employee profile where you want to upload documents.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Input
-                    aria-label="Search employees for document upload"
-                    placeholder="Search by name, email, designation, or department..."
-                    value={employeeSearch}
-                    onChange={(event) => setEmployeeSearch(event.target.value)}
-                    className="min-h-11"
-                  />
-                  <div className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-white/10 bg-card/40 p-2 shadow-sm backdrop-blur-xl">
-                    {employeeOptions.length ? (
-                      employeeOptions.map((employee) => {
-                        const departmentName =
-                          mockDepartments.find((department) => department.id === employee.departmentId)?.name ??
-                          "No department";
-
-                        return (
-                          <button
-                            key={employee.id}
-                            type="button"
-                            className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-                            onClick={() => openEmployeeDocuments(employee.id)}
-                          >
-                            <UserAvatar firstName={employee.firstName} lastName={employee.lastName} />
-                            <span className="min-w-0">
-                              <span className="block font-medium text-foreground">
-                                {employee.firstName} {employee.lastName}
-                              </span>
-                              <span className="block truncate text-xs text-muted-foreground">
-                                {departmentName} · {employee.designation ?? "No designation"} · {employee.email}
-                              </span>
-                            </span>
-                          </button>
-                        );
-                      })
-                    ) : (
-                      <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-8 text-center">
-                        <p className="font-medium text-foreground">No employees found</p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Try searching by a different name, email, role, or department.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
-            ) : null}
-            <Link
-              href="/documents/categories"
-              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 inline-flex items-center justify-center")}
-            >
-              Categories
-            </Link>
-          </div>
-        }
-      />
-      <div className="mt-4 space-y-4">
-        <DataTable columns={columns} data={scoped} searchPlaceholder="Search documents…" />
-      </div>
-    </>
+    <RequireRole allow={["admin", "employee"]}>
+      {null}
+    </RequireRole>
   );
 }

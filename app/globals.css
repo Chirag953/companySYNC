@@ -268,6 +268,71 @@
     text-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
   }
 
+  /** Login page — entrance + ambient motion (no extra deps) */
+  @keyframes ss-login-enter-left {
+    from {
+      opacity: 0;
+      transform: translateX(-22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes ss-login-enter-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .ss-login-panel-enter {
+    animation: ss-login-enter-left 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .ss-login-card-enter {
+    animation: ss-login-enter-up 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.08s backwards;
+  }
+
+  /** Staggered one-shot entrances (login marketing column) */
+  .ss-login-stagger-1 {
+    animation: ss-login-enter-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s backwards;
+  }
+
+  .ss-login-stagger-2 {
+    animation: ss-login-enter-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+  }
+
+  .ss-login-stagger-3 {
+    animation: ss-login-enter-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.28s backwards;
+  }
+
+  /** Form fields — subtle cascade */
+  .ss-login-field-1 {
+    animation: ss-login-enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.14s backwards;
+  }
+
+  .ss-login-field-2 {
+    animation: ss-login-enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+  }
+
+  .ss-login-field-3 {
+    animation: ss-login-enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.26s backwards;
+  }
+
+  .ss-login-field-4 {
+    animation: ss-login-enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.32s backwards;
+  }
+
+  .ss-login-field-5 {
+    animation: ss-login-enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.36s backwards;
+  }
+
   @keyframes ss-bell-vibrate {
     0% {
       transform: rotate(0deg);

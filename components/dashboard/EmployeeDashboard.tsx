@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ListChecks, Palmtree, Timer } from "lucide-react";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ChartTooltip } from "@/components/shared/ChartTooltip";
 import { StatCard } from "@/components/shared/StatCard";
 import { Button } from "@/components/ui/button";
 import { mockTasks } from "@/lib/mock-data/tasks";
@@ -14,6 +12,7 @@ import { useAuth } from "@/lib/auth-context";
 import { PriorityBadge } from "@/components/shared/PriorityBadge";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { format, subDays } from "date-fns";
+import { DashboardStickyBoard } from "@/components/dashboard/DashboardStickyBoard";
 
 const ATTENDANCE_STATUS_LABELS = {
   present: "Present",
@@ -53,11 +52,6 @@ export function EmployeeDashboard() {
       return { label: format(subDays(new Date(), 6 - i), "EEE"), status: rec?.status ?? "absent" };
     });
   }, [uid]);
-
-  const perfTrend = Array.from({ length: 12 }).map((_, i) => ({
-    week: `W${i + 1}`,
-    score: 60 + ((i + tick) % 5) * 8,
-  }));
 
   return (
     <div className="space-y-10">
@@ -137,24 +131,8 @@ export function EmployeeDashboard() {
           </div>
         </div>
       </div>
-      <div className="panel-glass p-5">
-        <h3 className="mb-4 text-sm font-medium">Performance trend (mock)</h3>
-        <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={perfTrend}>
-              <defs>
-                <linearGradient id="employeePerfLineGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#10b981" />
-                  <stop offset="100%" stopColor="#06b6d4" />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-              <Tooltip content={ChartTooltip} />
-              <Line type="monotone" dataKey="score" stroke="url(#employeePerfLineGrad)" strokeWidth={2} dot />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="panel-glass min-w-0 rounded-xl p-4 sm:p-6">
+        <DashboardStickyBoard />
       </div>
       <div className="panel-glass p-5 text-sm text-muted-foreground">
         Leave types:{" "}

@@ -1,27 +1,21 @@
 "use client";
 
+import type { TooltipContentProps } from "recharts";
 import { cn } from "@/lib/utils";
 
-/** Recharts passes these props to custom tooltip content */
-type ChartTooltipPayload = {
-  name?: string;
-  value?: string | number;
-  dataKey?: string | number;
-  color?: string;
-};
+function formatTooltipValue(v: unknown): string {
+  if (v == null) return "";
+  if (Array.isArray(v)) return v.map(String).join(", ");
+  return String(v);
+}
 
-export type ChartTooltipProps = {
-  active?: boolean;
-  payload?: ChartTooltipPayload[];
-  label?: string | number;
-  className?: string;
-};
+type ChartTooltipComponentProps = TooltipContentProps & { className?: string };
 
 /**
  * Tooltip card for Recharts with emerald→cyan gradient labels (matches `.text-gradient` / PageHeader).
- * Use: `<Tooltip content={ChartTooltip} />` or `<Tooltip content={<ChartTooltip />} />` — Recharts will inject props.
+ * Use: `<Tooltip content={ChartTooltip} />` — Recharts injects `TooltipContentProps`.
  */
-export function ChartTooltip({ active, payload, label, className }: ChartTooltipProps) {
+export function ChartTooltip({ active, payload, label, className }: ChartTooltipComponentProps) {
   if (!active || !payload?.length) return null;
 
   return (
@@ -47,9 +41,11 @@ export function ChartTooltip({ active, payload, label, className }: ChartTooltip
                   aria-hidden
                 />
               ) : null}
-              <span className="text-gradient">{entry.name ?? String(entry.dataKey ?? "")}</span>
+              <span className="text-gradient">
+                {entry.name != null ? String(entry.name) : String(entry.dataKey ?? "")}
+              </span>
             </span>
-            <span className="shrink-0 font-semibold tabular-nums text-gradient">{entry.value}</span>
+            <span className="shrink-0 font-semibold tabular-nums text-gradient">{formatTooltipValue(entry.value)}</span>
           </li>
         ))}
       </ul>

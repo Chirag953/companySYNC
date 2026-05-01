@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Home, Menu } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,7 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/lib/auth-context";
+import { AppLogo } from "@/components/shared/AppLogo";
 
 export function Topbar({
   pathname,
@@ -52,8 +53,8 @@ export function Topbar({
             href="/dashboard"
             className="group inline-flex min-h-9 min-w-9 items-center justify-center rounded-md hover:bg-accent hover:text-foreground"
           >
-            <Home className="size-4 shrink-0 text-muted-foreground group-hover:text-foreground" aria-hidden />
-            <span className="sr-only">Home</span>
+            <AppLogo size={28} />
+            <span className="sr-only">Dashboard — companySYNC home</span>
           </Link>
           {crumbs.map((c) => (
             <span key={c.href} className="flex min-w-0 items-center gap-1">

@@ -10,7 +10,6 @@ import {
   LineChart,
   FolderOpen,
   Folders,
-  StickyNote,
   Settings,
   Bell,
   UserCircle,
@@ -26,15 +25,17 @@ const titles: Record<string, string> = {
   "/leave": "Leave",
   "/leave/requests": "Leave requests",
   "/attendance": "Attendance",
+  "/attendance/employee": "Employee attendance",
   "/shifts": "Shifts",
   "/performance": "Performance",
   "/documents": "Documents",
   "/documents/categories": "Document categories",
-  "/notes": "Notes",
   "/notifications": "Notifications",
   "/audit-log": "Audit log",
   "/settings": "Settings",
   "/login": "Sign in",
+  "/register": "Create account",
+  "/forgot-password": "Forgot password",
 };
 
 const pathIcons: Record<string, LucideIcon> = {
@@ -49,7 +50,6 @@ const pathIcons: Record<string, LucideIcon> = {
   "/performance": LineChart,
   "/documents": FolderOpen,
   "/documents/categories": Folders,
-  "/notes": StickyNote,
   "/notifications": Bell,
   "/audit-log": ScrollText,
   "/settings": Settings,
@@ -60,6 +60,7 @@ export function titleForPath(pathname: string) {
   if (pathname.startsWith("/users/")) return "User profile";
   if (pathname.startsWith("/documents/employee/")) return "Employee documents";
   if (pathname.startsWith("/performance/employee/")) return "Employee performance";
+  if (pathname.startsWith("/attendance/employee/")) return "Employee attendance";
   if (pathname.startsWith("/tasks/")) return "Task detail";
   return "companySYNC";
 }
@@ -70,6 +71,7 @@ export function iconForPath(pathname: string): LucideIcon | undefined {
   if (pathname.startsWith("/users/")) return UserCircle;
   if (pathname.startsWith("/documents/employee/")) return FolderOpen;
   if (pathname.startsWith("/performance/employee/")) return LineChart;
+  if (pathname.startsWith("/attendance/employee/")) return Clock;
   if (pathname.startsWith("/tasks/")) return ListTodo;
   return undefined;
 }

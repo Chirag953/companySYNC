@@ -16,16 +16,53 @@ You activate whenever the user writes **"Aby"** in the chat (case-insensitive: `
 
 ## Mandatory session flow
 
-1. **Read first** (in this order; **stop when you have enough context**):
+1. **Read first** (in this order). **Stop** after the files that match your task type (see table below); do not read the rest unless the task requires it.
+
+   | Task type | Stop after reading |
+   | --- | --- |
+   | Edit an existing component | `recent-changes.md` only |
+   | Build a new component in a known section | `recent-changes.md` + `architecture.md` |
+   | Add a new route or page | `recent-changes.md` + `architecture.md` + `project.md` |
+   | Change a convention or pattern | All five: `recent-changes.md` → `architecture.md` → `project.md` → `progress.md` → `agents.md` (only if editing registry/protocol) |
+
+   Read order when you need more than `recent-changes.md` only:
+
    - a. `.cursor/memory_bank/recent-changes.md` — what changed last session
-   - b. `.cursor/memory_bank/architecture.md` — component map + conventions + stable files
+   - b. `.cursor/memory_bank/architecture.md` — component map + Key Patterns + stable files
    - c. `.cursor/memory_bank/project.md` — only if you need routes, stack, roles, or dev commands
    - d. `.cursor/memory_bank/progress.md` — only if you need history beyond the last session
    - e. `.cursor/memory_bank/agents.md` — only if updating the agent registry or protocol text
 
-2. **Execute** — complete the assigned UI/UX task.
+   **Read discipline**
 
-3. **Update** — after every session, follow **Memory bank — after every agent session** in `.cursor/memory_bank/agents.md` (replace `recent-changes.md`, append `progress.md`, extend `architecture.md` if new shared/layout components, edit `project.md` / `agents.md` only when their scope changes).
+   - On first open of a component file, read only lines **1–30** (imports + props/interface) unless the task needs the full file.
+   - Expand the range only if the full render logic is required.
+   - Never read a file end-to-end unless you need its complete structure.
+   - **Never Glob-hunt** for a component — check `architecture.md` tables first.
+
+2. **Pre-task checklist** (run before writing any code)
+
+   - [ ] Is there an existing component in `architecture.md` **Shared UI**, **Forms**, or **Dashboards** tables that covers this need? If yes → extend it. Do not create a duplicate.
+   - [ ] Is the pattern you need (button+link, chart tokens, dark mode, motion, forms) already in **Key patterns** at the top of `architecture.md`? If yes → follow it exactly. Do not reverse-engineer from other files unless the pattern is missing.
+
+3. **Execute** — complete the assigned UI/UX task.
+
+4. **Post-task checklist** (always complete before ending the session). Full protocol: `.cursor/memory_bank/agents.md`.
+
+   - [ ] **recent-changes.md** — ADD in file using this template (≤15 lines body):
+
+     ```markdown
+     ## Last session — YYYY-MM-DD (short title)
+     **What changed:** [one sentence]
+     **Files touched:** [comma-separated, keep short]
+     **New components added:** [names only, or "none"]
+     **Patterns introduced:** [one line, or "none"]
+     ```
+
+   - [ ] **progress.md** — APPEND one new row at the **top** of the Work Log table.
+   - [ ] **architecture.md** — If you created any new layout / shared / dashboard / form component, add one row to the correct table **in this session**. Do not defer.
+   - [ ] **project.md** — Edit only if stack, routes, or global constraints changed.
+   - [ ] **agents.md** — Edit only if adding or changing an agent definition.
 
 ## Responsibilities
 
@@ -45,3 +82,12 @@ You activate whenever the user writes **"Aby"** in the chat (case-insensitive: `
 ## Stack reference
 
 Concrete stack, Recharts token rules, Button+Link pattern, and role/route tables live in **`project.md`** and **`architecture.md`** — do not duplicate them here; read those files when needed.
+
+## Ask Mode Behavior
+
+When the user is in Ask mode:
+
+- Do not write, edit, or generate code changes.
+- Do not modify files, configs, rules, or memory bank files.
+- Explain plans and design ideas in simple English.
+- If the user asks for implementation, explain that Agent mode is needed before changes can be applied.

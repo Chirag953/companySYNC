@@ -8,19 +8,21 @@
 
 ## Tech Stack
 
-| Layer                   | Technology                                                   | Status |
-| ----------------------- | ------------------------------------------------------------ | ------ |
-| API Layer               | Next.js Route Handlers (`app/api/**/route.ts`)              | ❌     |
-| Database                | PostgreSQL                                                   | ❌     |
-| ORM                     | Prisma                                                       | ❌     |
-| Authentication          | NextAuth.js v5 (Credentials + JWT)                           | ❌     |
-| Password Hashing        | bcrypt (salt rounds = 12)                                    | ❌     |
-| File Storage            | AWS S3 or Cloudflare R2                                      | ❌     |
-| Real-Time Notifications | Pusher or Ably                                               | ❌     |
-| Validation              | Zod (shared client + API)                                    | ❌     |
-| Middleware              | `middleware.ts` — auth + role enforcement                    | ❌     |
-| Testing                 | Vitest + Playwright                                          | ❌     |
-| Containerisation        | Docker Compose (PostgreSQL)                                  | ❌     |
+
+| Layer                   | Technology                                     | Status |
+| ----------------------- | ---------------------------------------------- | ------ |
+| API Layer               | Next.js Route Handlers (`app/api/**/route.ts`) | ❌      |
+| Database                | PostgreSQL                                     | ❌      |
+| ORM                     | Prisma                                         | ❌      |
+| Authentication          | NextAuth.js v5 (Credentials + JWT)             | ❌      |
+| Password Hashing        | bcrypt (salt rounds = 12)                      | ❌      |
+| File Storage            | AWS S3 or Cloudflare R2                        | ❌      |
+| Real-Time Notifications | Pusher or Ably                                 | ❌      |
+| Validation              | Zod (shared client + API)                      | ❌      |
+| Middleware              | `middleware.ts` — auth + role enforcement      | ❌      |
+| Testing                 | Vitest + Playwright                            | ❌      |
+| Containerisation        | Docker Compose (PostgreSQL)                    | ❌      |
+
 
 ---
 
@@ -41,7 +43,7 @@
 - ❌ Passwords never returned in API responses (`passwordHash` excluded)
 - ❌ `POST /api/auth/forgot-password` — token (hashed), 15-min expiry, Resend email
 - ❌ `POST /api/auth/reset-password` — validate token, update password, invalidate token
-- ❌ `middleware.ts` — public `/login`; protect `/dashboard/*`; API role rules; cron secret for `/api/cron/*`
+- ❌ `middleware.ts` — public `/login`; protect `/dashboard/`*; API role rules; cron secret for `/api/cron/`*
 
 ---
 
@@ -133,6 +135,27 @@
 
 ---
 
+## CSR / SSR Rendering Split
+
+Phase 1 marks every `app/(dashboard)/**/page.tsx` as `"use client"` because data comes from client-side mock imports. In Phase 2, pages must be refactored to use the App Router properly.
+
+**Rules:**
+
+- create proper CSR/SSR for this project.
+- `app/layout.tsx`, `app/(dashboard)/layout.tsx`, `app/(auth)/layout.tsx` — stay Server Components (already correct).
+- **Dashboard pages** — convert to Server Components; call Prisma / `getServerSession()` directly in the page; pass data as props to a `"use client"` leaf component for interactivity (filters, forms, modals).
+- **Interactive leaf components** (`DataTable`, forms, sheets, filter bars) — keep `"use client"`.
+- **Auth pages** (`/login`, `/register`, `/forgot-password`) — page file stays Server Component; form components handle their own `"use client"` (already correct pattern after Phase 1 refactor).
+
+**Tasks:**
+
+- ❌ Audit all `app/(dashboard)/**/page.tsx` files — remove `"use client"` from page files that only need it because of mock data imports.
+- ❌ For each dashboard page: extract interactive state into a `<PageNameView />` client component; page file becomes an `async` Server Component that fetches from Prisma and passes typed props.
+- ❌ Replace `useAuth()` role checks in page files with server-side session (`getServerSession()` or `auth()` from NextAuth v5).
+- ❌ Verify no page-level `"use client"` remains unless the page genuinely needs browser APIs at the top level (expected: zero after migration).
+
+---
+
 ## Testing
 
 - ❌ Vitest — leave balance calculation, attendance status rules, critical business logic
@@ -153,6 +176,7 @@
 - ❌ Docker Compose for local Postgres
 - ❌ Zod on every Route Handler input
 - ❌ Vitest + Playwright suites in place
+- ❌ CSR/SSR split applied — all dashboard pages converted to Server Components with client leaf components
 
 ---
 

@@ -25,6 +25,10 @@ const syne = Syne({
 export const metadata: Metadata = {
   title: "companySYNC — Workforce",
   description: "Role-based workforce management (Phase 1 mock UI)",
+  icons: {
+    icon: [{ url: "/companySYNC-LOGO.png", type: "image/png" }],
+    apple: "/companySYNC-LOGO.png",
+  },
 };
 
 export default function RootLayout({

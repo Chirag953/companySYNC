@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Download, RotateCcw } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -50,6 +50,7 @@ const categories: Array<AuditLogCategory | "all"> = [
 const roleOptions: Array<Role | "all"> = ["all", "admin", "manager", "employee"];
 const userById = new Map(mockUsers.map((u) => [u.id, u]));
 const departmentById = new Map(mockDepartments.map((d) => [d.id, d.name]));
+const PAGE_SIZE = 20;
 
 function categoryVariant(c: AuditLogCategory): "default" | "secondary" | "outline" {
   if (c === "auth") return "secondary";
@@ -93,6 +94,7 @@ function AuditLogPageInner() {
   const [toTime, setToTime] = useState("");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [page, setPage] = useState(1);
 
   const filteredLogs = useMemo(() => {
     if (!user) return [];
@@ -133,8 +135,18 @@ function AuditLogPageInner() {
     });
   }, [category, date, department, fromTime, role, search, toTime, user]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [category, date, department, fromTime, role, search, toTime]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const paginatedLogs = filteredLogs.slice(pageStart, pageStart + PAGE_SIZE);
+  const pageEnd = pageStart + paginatedLogs.length;
+
   const selectedRows = filteredLogs.filter((row) => selectedIds.has(row.id));
-  const allVisibleSelected = filteredLogs.length > 0 && filteredLogs.every((row) => selectedIds.has(row.id));
+  const allVisibleSelected = paginatedLogs.length > 0 && paginatedLogs.every((row) => selectedIds.has(row.id));
 
   function toggleRow(id: string, checked: boolean) {
     setSelectedIds((current) => {
@@ -151,10 +163,10 @@ function AuditLogPageInner() {
   function toggleAllVisible(checked: boolean) {
     setSelectedIds((current) => {
       if (checked) {
-        return new Set([...current, ...filteredLogs.map((row) => row.id)]);
+        return new Set([...current, ...paginatedLogs.map((row) => row.id)]);
       }
 
-      const visibleIds = new Set(filteredLogs.map((row) => row.id));
+      const visibleIds = new Set(paginatedLogs.map((row) => row.id));
       return new Set([...current].filter((id) => !visibleIds.has(id)));
     });
   }
@@ -248,7 +260,7 @@ function AuditLogPageInner() {
             </label>
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Categories</p>
-              <Select value={category} onValueChange={(v) => setCategory(v as (typeof categories)[number])}>
+              <Select value={category} onValueChange={(v) => setCategory((v ?? "all") as (typeof categories)[number])}>
                 <SelectTrigger className="min-h-11" aria-label="Filter by category">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
@@ -263,7 +275,7 @@ function AuditLogPageInner() {
             </div>
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Departments</p>
-              <Select value={department} onValueChange={setDepartment}>
+              <Select value={department} onValueChange={(v) => setDepartment(v ?? "all")}>
                 <SelectTrigger className="min-h-11" aria-label="Filter by department">
                   <SelectValue placeholder="Department" />
                 </SelectTrigger>
@@ -279,7 +291,7 @@ function AuditLogPageInner() {
             </div>
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">User role</p>
-              <Select value={role} onValueChange={(v) => setRole(v as Role | "all")}>
+              <Select value={role} onValueChange={(v) => setRole((v ?? "all") as Role | "all")}>
                 <SelectTrigger className="min-h-11" aria-label="Filter by role">
                   <SelectValue placeholder="Role" />
                 </SelectTrigger>
@@ -324,7 +336,8 @@ function AuditLogPageInner() {
           </div>
           <div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Showing {filteredLogs.length} rows. Select rows to export a specific set, or export the current filtered view.
+              Showing {paginatedLogs.length ? `${pageStart + 1}-${pageEnd}` : 0} of {filteredLogs.length} rows.
+              Select rows to export a specific set, or export the current filtered view.
             </p>
             <Button type="button" variant="outline" size="sm" className="min-h-9 w-fit" onClick={clearFilters}>
               <RotateCcw className="size-4" />
@@ -352,8 +365,8 @@ function AuditLogPageInner() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLogs.length ? (
-                filteredLogs.map((row) => {
+              {paginatedLogs.length ? (
+                paginatedLogs.map((row) => {
                   const occurredAt = new Date(row.occurredAt);
                   const actor = userById.get(row.actorUserId);
                   const subject = userById.get(row.subjectUserId);
@@ -417,6 +430,33 @@ function AuditLogPageInner() {
               )}
             </TableBody>
           </Table>
+          <div className="flex flex-col gap-3 border-t border-border/60 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              Page {currentPage} of {totalPages} · {PAGE_SIZE} rows per page
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-9"
+                onClick={() => setPage((value) => Math.max(1, value - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-9"
+                onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </>

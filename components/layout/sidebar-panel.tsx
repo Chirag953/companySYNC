@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight, LogOut, type LucideIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { getNavSections, type NavItem, type NavSection } from "@/lib/nav-config";
 import { UserAvatar } from "@/components/shared/UserAvatar";
+import { AppLogo } from "@/components/shared/AppLogo";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 
 /** Green–cyan glass nav: active row */
@@ -59,7 +60,9 @@ function NavGroupRow({
   const headerActive = groupHasActiveChild(pathname, items);
 
   useEffect(() => {
-    if (groupHasActiveChild(pathname, items)) setOpen(true);
+    if (groupHasActiveChild(pathname, items)) {
+      startTransition(() => setOpen(true));
+    }
   }, [pathname, items]);
 
   if (collapsed) {
@@ -234,14 +237,22 @@ export function SidebarPanel({
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col bg-transparent">
       <div className="flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-3">
-        <div className="flex size-9 items-center justify-center rounded-md bg-gradient-to-br from-emerald-600 to-cyan-600 text-xs font-bold text-white shadow-sm dark:from-emerald-500 dark:to-cyan-500">
-          CS
-        </div>
-        {!collapsed ? (
-          <div className="leading-tight">
-            <p className="text-sm font-semibold">companySYNC</p>
-          </div>
-        ) : null}
+        <Link
+          href="/dashboard"
+          onClick={() => onNavigate?.()}
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-2 rounded-md py-1 pr-1 outline-none transition-colors hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring",
+            collapsed && "flex-initial justify-center pr-0",
+          )}
+          title="companySYNC — Dashboard"
+        >
+          <AppLogo size={36} priority />
+          {!collapsed ? (
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-semibold tracking-tight">companySYNC</p>
+            </div>
+          ) : null}
+        </Link>
         {showCollapseToggle && onCollapsedChange ? (
           <Button
             type="button"

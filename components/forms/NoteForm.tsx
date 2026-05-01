@@ -26,10 +26,13 @@ export type NoteFormValues = z.infer<typeof schema>;
 
 export function NoteForm({
   defaultValues,
+  submitLabel = "Save note",
   onSubmit,
   onCancel,
 }: {
   defaultValues?: Partial<NoteFormValues>;
+  /** Shown on the primary submit button (e.g. “Save changes” when editing). */
+  submitLabel?: string;
   onSubmit: (values: NoteFormValues) => void;
   onCancel?: () => void;
 }) {
@@ -62,11 +65,11 @@ export function NoteForm({
       </div>
       <div className="space-y-2">
         <Label>Priority</Label>
-        <Controller
-          name="priority"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Controller
+              name="priority"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={(v) => field.onChange(v ?? "medium")}>
               <SelectTrigger className="min-h-11 w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -86,7 +89,7 @@ export function NoteForm({
           </Button>
         ) : null}
         <Button type="submit" className="min-h-11">
-          Save note
+          {submitLabel}
         </Button>
       </div>
     </form>

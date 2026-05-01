@@ -14,6 +14,7 @@ Condensed for agents. Full PRD: `docs/PRD.md`. Phase checklist: `docs/phase-1.md
 | Styling     | Tailwind CSS v4, tokens in `app/globals.css` (no `tailwind.config.js`)                                                                      |
 | Typography  | **Inter** (UI) + **JetBrains Mono** (mono) + **Syne** (`--font-heading` / optional `--font-display` alias), `next/font` in `app/layout.tsx` |
 | UI          | shadcn / Base UI under `components/ui/`                                                                                                     |
+| Motion      | Framer Motion (`framer-motion`) — auth surfaces + staggered UI                                                                              |
 | Auth (mock) | `lib/auth-context.tsx` + `Providers`                                                                                                        |
 | Forms       | React Hook Form + Zod                                                                                                                       |
 | Tables      | TanStack Table                                                                                                                              |
@@ -28,24 +29,24 @@ Condensed for agents. Full PRD: `docs/PRD.md`. Phase checklist: `docs/phase-1.md
 ## Routes (Phase 1)
 
 
-| Path                         | Notes                                                                  |
-| ---------------------------- | ---------------------------------------------------------------------- |
-| `/`                          | Redirects to `/login`                                                  |
-| `/login`, `/forgot-password` | Auth                                                                   |
-| `/dashboard`                 | Role dashboards                                                        |
-| `/users`, `/users/[id]`      | Admin (`RequireRole`); `/users` = stacked role cards + tables per role |
-| `/teams`                     | Admin                                                                  |
-| `/tasks`, `/tasks/[id]`      | All roles                                                              |
-| `/leave`                     | Admin + employee                                                       |
-| `/leave/requests`            | Manager                                                                |
-| `/attendance`                | All roles                                                              |
-| `/shifts`                    | Admin + employee                                                       |
-| `/performance`               | All roles                                                              |
-| `/documents`                 | All roles                                                              |
-| `/documents/categories`      | Admin                                                                  |
-| `/notes`, `/settings`        | All roles                                                              |
-| `/audit-log`                 | Admin & manager only; scoped mock trail                                |
-| `/notifications`             | Bell → **View all** (not in sidebar)                                   |
+| Path                                      | Notes                                                                  |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| `/`                                       | Redirects to `/login`                                                  |
+| `/login`, `/register`, `/forgot-password` | Auth                                                                   |
+| `/dashboard`                              | Role dashboards                                                        |
+| `/users`, `/users/[id]`                   | Admin (`RequireRole`); `/users` = stacked role cards + tables per role |
+| `/teams`                                  | Admin                                                                  |
+| `/tasks`, `/tasks/[id]`                   | All roles                                                              |
+| `/leave`                                  | Admin + employee                                                       |
+| `/leave/requests`                         | Manager                                                                |
+| `/attendance`                             | All roles                                                              |
+| `/shifts`                                 | Admin + employee                                                       |
+| `/performance`                            | All roles                                                              |
+| `/documents`                              | Admin + employee (managers: no nav / no access)                          |
+| `/documents/categories`                   | Admin                                                                  |
+| `/notes`, `/settings`                     | All roles                                                              |
+| `/audit-log`                              | Admin & manager only; scoped mock trail                                |
+| `/notifications`                          | Bell → **View all** (not in sidebar)                                   |
 
 
 Nav source: `lib/nav-config.ts` (`getNavSections`, `flattenNavItems`). Titles: `lib/route-titles.ts`.

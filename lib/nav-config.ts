@@ -11,7 +11,6 @@ import {
   Building2,
   LineChart,
   FolderOpen,
-  StickyNote,
   Settings,
   ScrollText,
   type LucideIcon,
@@ -44,8 +43,7 @@ function navItem(
 const NAV_DASHBOARD = navItem("/dashboard", "Dashboard", LayoutDashboard, ["admin", "manager", "employee"]);
 const NAV_TASKS = navItem("/tasks", "Tasks", ListTodo, ["admin", "manager", "employee"]);
 const NAV_PERFORMANCE = navItem("/performance", "Performance", LineChart, ["admin", "manager", "employee"]);
-const NAV_DOCUMENTS = navItem("/documents", "Documents", FolderOpen, ["admin", "manager", "employee"]);
-const NAV_NOTES = navItem("/notes", "Notes", StickyNote, ["admin", "manager", "employee"]);
+const NAV_DOCUMENTS = navItem("/documents", "Documents", FolderOpen, ["admin", "employee"]);
 const NAV_SETTINGS = navItem("/settings", "Settings", Settings, ["admin", "manager", "employee"]);
 
 const PEOPLE_TEAMS_ITEMS: NavItem[] = [
@@ -62,7 +60,7 @@ const LEAVE_SCHEDULING_ITEMS: NavItem[] = [
 
 const NAV_AUDIT_LOG = navItem("/audit-log", "Audit log", ScrollText, ["admin", "manager"]);
 
-const TAIL_LINKS: NavItem[] = [NAV_PERFORMANCE, NAV_DOCUMENTS, NAV_NOTES, NAV_AUDIT_LOG, NAV_SETTINGS];
+const TAIL_LINKS: NavItem[] = [NAV_PERFORMANCE, NAV_DOCUMENTS, NAV_AUDIT_LOG, NAV_SETTINGS];
 
 /**
  * Ordered nav for sidebar / mobile sheet: flat links plus collapsible groups.
